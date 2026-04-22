@@ -1,0 +1,13 @@
+<script>
+    // ... inicialización de Firebase ...
+    db.collection('photos')
+      .where('status', '==', 'approved')
+      .orderBy('timestamp', 'desc')
+      .limit(1) // Solo muestra la última aprobada o haz un carrusel
+      .onSnapshot(snapshot => {
+          snapshot.forEach(doc => {
+              document.getElementById('mainPhoto').src = doc.data().url;
+              // Aquí puedes añadir animaciones de entrada
+          });
+      });
+</script>
