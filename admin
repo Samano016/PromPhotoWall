@@ -1,0 +1,20 @@
+<script>
+    // ... inicialización de Firebase ...
+    db.collection('photos').where('status', '==', 'pending').onSnapshot(snapshot => {
+        const container = document.getElementById('adminView');
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            container.innerHTML += `
+                <div style="margin: 10px; border: 1px solid #555; padding: 10px;">
+                    <img src="${data.url}" width="150"><br>
+                    <button onclick="approve('${doc.id}')" style="background:green; color:white">✅ APROBAR</button>
+                    <button onclick="reject('${doc.id}')" style="background:red; color:white">❌ BORRAR</button>
+                </div>
+            `;
+        });
+    });
+
+    function approve(id) { db.collection('photos').doc(id).update({ status: 'approved' }); }
+    function reject(id) { db.collection('photos').doc(id).delete(); }
+</script>
