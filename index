@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Foto - Prom 2026</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; padding: 20px; }
+        .btn { background: #e50914; color: white; padding: 15px 30px; border: none; border-radius: 25px; font-size: 1.2rem; cursor: pointer; }
+        #status { margin-top: 20px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <h1>📸 Comparte tu momento</h1>
+    <p>La foto aparecerá en la pantalla gigante tras ser aprobada.</p>
+    <input type="file" id="photoInput" accept="image/*" capture="camera" style="display:none">
+    <button class="btn" onclick="document.getElementById('photoInput').click()">TOMAR FOTO</button>
+    <div id="status"></div>
+
+    <script>
+        // PEGA AQUÍ TU firebaseConfig
+        const firebaseConfig = { ... }; 
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const db = firebase.firestore();
+
+        document.getElementById('photoInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('status');
+            status.innerText = "Subiendo...";
+
+            const storageRef = storage.ref('pendientes/' + Date.now() + "_" + file.name);
+            await storageRef.put(file);
+            const url = await storageRef.getDownloadURL();
+
+            await db.collection('photos').add({
+                url: url,
+                status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            status.innerText = "¡Enviada! Espera a verla en la pantalla.";
+        });
+    </script>
+</body>
+</html>
